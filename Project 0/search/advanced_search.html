@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Search</title>
+        <style>
+          #heading {
+            color: red;
+            font-size: 20px;
+          }
+
+          img {
+            height: 100px;
+          }
+
+          #image_container {
+            background-color: #d1cfce;
+            height: 75px;
+            padding-bottom: 10px;
+          }
+
+          #content{
+            margin-left: 40px;
+          }
+
+          #submit {
+            color: white;
+            background-color: #83dbda;
+            border: 0px;
+            height: 30px;
+            display: block;
+            margin: auto;
+          }
+
+          #container {
+            display: grid;
+            grid-template-columns: 250px auto;
+            grid-column-gap: 10px;
+            grid-row-gap: 10px;
+          }
+
+        </style>
+    </head>
+    <body>
+      <div id="image_container">
+        <img src="google logo.png" alt="Google logo">
+      </div>
+      <div id="content">
+         <div id="heading">Advanced Search</div>
+         <br>
+
+          <form action="https://google.com/search">
+              Find Pages with...<br><br>
+
+              <div id="container">
+                all these words:
+                <input type="text" name="as_q">
+
+                this exact word or phrase:
+                <input type="text" name="as_epq">
+
+                any of these words:
+                <input type="text" name="as_oq">
+
+                none of these words:
+                <input type="text" name="as_eq">
+              </div>
+              <br>
+              <input type="submit" value="Advanced Search" id="submit">
+          </form>
+      </div>
+    </body>

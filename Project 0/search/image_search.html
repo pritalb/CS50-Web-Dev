@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Google Image Search</title>
+        <style>
+          h1 {
+            text-align: center;
+          }
+
+          input {
+            display: block;
+            margin: auto;
+          }
+
+          input[type="text"]{
+            width: 400px;
+            height: 25px;
+            border-radius: 25px;
+            border-width: thin;
+          }
+
+          img {
+            height: 200px;
+            display: block;
+            margin: auto;
+          }
+
+          #search_button {
+            display: flex;
+            width: 500px;
+            margin: auto;
+          }
+
+          #top_buttons {
+            text-align: right;
+          }
+
+        </style>
+    </head>
+    <body>
+      <div id="top_buttons">
+        <a href="index.html">Google Search</a>
+        <a href="advanced_search.html">Advanced Search</a>
+      </div>
+
+      <img src="google logo.png" alt="Google logo">
+
+      <div>
+        <form action="https://google.com/search?tbm=isch">
+            <input type="text" name="q">
+            <br>
+            <div id="search_button">
+              <input type="submit" value="Search Image">
+            </div>
+        </form>
+      </div>
+    </body>
+</html>

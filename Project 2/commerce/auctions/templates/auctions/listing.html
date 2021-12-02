@@ -1,0 +1,85 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div>
+        <h1>{{ listing.title }}</h1><br>
+        Posted by <b>{{ listing.lister }}</b><br>
+        Category: {{ listing.category }} <br>
+        Status: {{ listing.status }}
+    </div>
+
+    <img src="{{ listing.url }}" alt="image">
+
+    <div>{{ listing.description }}</div><br>
+
+    <div>
+        {% if request.user == listing.lister and listing.status.status == "Active" %}
+            <form action="{% url 'close_listing' listing.pk %}">
+                <input type="submit" value="Close Listing">
+            </form>
+        {% endif %}
+    </div>
+
+    <div>
+        {% if bid.bidder and listing.status.status == "Active" %}
+            Current bid: ${{ bid.amount }} by {{ bid.bidder }}
+        {% elif listing.status.status == "Closed" %}
+            Auction Closed! Listing sold for ${{ bid.amount }}
+        {% else %}
+            No Bids Yet. Starting Amount is ${{ bid.amount }}
+        {% endif %}
+    </div>
+
+    <div>
+        {% if listing.status.id == 2 and bid.bidder == request.user %}
+            <h3> Congratulations, {{ bid.bidder }}! You've Won the Auction! </h3>
+        {% endif %}
+    </div>
+
+    {% if message and listing.status.status == "Active" %}
+        ^^{{ message }}^^
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        <form action="{% url 'listing' id %}" method="POST">
+            {% csrf_token %}
+
+            {% if listing.status.status == "Active" %}
+                <input type="number" name="bid" placeholder="place a bid"><br>
+                <input type="submit" value="place bid">
+            {% endif %}
+
+            {% if listing in watchlist %}
+                <input type="submit" value="Remove from Watchlist" formaction="{% url 'watchlist_remove' id %}">
+            {% else %}
+                <input type="submit" value="Add to Watchlist" formaction="{% url 'watchlist_add' id %}">
+            {% endif %}
+        </form>
+    {% else %}
+        Log in to place bid
+    {% endif %}
+
+    <br><br><br>
+    <h2>Comments</h2>
+
+    {% if user.is_authenticated %}
+        <form action="{% url 'comment' id %}" method="POST">
+            {% csrf_token %}
+
+            <textarea name="comment" cols="30" rows="5">Add a comment</textarea><br>
+            <input type="submit" value="Comment">
+        </form>
+    {% else %}
+        <h3>Sign in to add a comment</h3>
+    {% endif %}
+
+    <hr>
+    {% for comment in comments %}
+        <div>
+            <h3>{{ comment.user }}:</h3>
+            {{ comment }}
+        </div>
+        <hr>
+    {% endfor %}
+
+{% endblock %}
