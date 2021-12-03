@@ -112,7 +112,10 @@ def listing(request, listing_id):
         watchlist = Watchlist.objects.create(user=user)
         watchlist.save()
 
-    comments = Comment.objects.all()
+    try:
+        comments = Comment.objects.all()
+    except:
+        comments = None
 
     #updating bid value
     if request.method == "POST":
@@ -155,8 +158,7 @@ def comment(request, listing_id):
     user = request.user
     listing = Listing.objects.get(pk= listing_id)
 
-
-    comment_object = Comment.objects.create(comment=comment, commenter=user)
+    comment_object = Comment.objects.create(comment=comment, commenter=user, listing=listing)
     comment_object.save()
 
     return HttpResponseRedirect(reverse('listing', args=(listing_id, )))
@@ -185,7 +187,6 @@ def watchlist_add(request, listing_id):
     watchlist.listing.add(item)
 
     return HttpResponseRedirect(reverse("listing", args=(listing_id, )))
-
 
 
 def watchlist_remove(request, listing_id):

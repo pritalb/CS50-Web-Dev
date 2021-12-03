@@ -76,8 +76,8 @@
     <hr>
     {% for comment in comments %}
         <div>
-            <h3>{{ comment.user }}:</h3>
-            {{ comment }}
+            <h5>{{ comment.commenter|title }}:</h5>
+            {{ comment.comment|linebreaks }}
         </div>
         <hr>
     {% endfor %}

@@ -29,9 +29,9 @@ class Status(models.Model):
 class Listing(models.Model):
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=512, null=True)
-    url = models.URLField(blank=True)
+    url = models.URLField(blank=True, null=True)
     bid = models.OneToOneField(Bid, on_delete=models.CASCADE, primary_key=True)
-    lister = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings", null=True)
+    lister = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     category = models.ForeignKey(Category, related_name="category_items", on_delete=models.CASCADE, default=1)
     status = models.ForeignKey(Status, on_delete=models.CASCADE, related_name="listings", default=1)
 
@@ -39,8 +39,8 @@ class Listing(models.Model):
         return f"{self.title} posted by {self.lister}: Current bid is ${self.bid.amount}."
 
 class Comment(models.Model):
-    commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments", null=True)
-    comment = models.CharField(max_length=256, blank=True)
+    commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    comment = models.CharField(max_length=256)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments_on_listing")
 
     def __str__(self):

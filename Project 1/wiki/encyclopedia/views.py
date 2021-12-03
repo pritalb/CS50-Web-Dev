@@ -13,7 +13,7 @@ def entry(request, title):
     if util.get_entry(title):
         return render(request, "encyclopedia/entry.html", {"entry": markdown(util.get_entry(title)), "title": title, })
     else:
-        return render(request, "encyclopedia/entry.html", {"entry": "No entry with the title {title} exists." })
+        return render(request, "encyclopedia/entry.html", {"entry": f"No entry with the title {title.title()} exists." })
 
 def search(request):
     query = request.GET.get('q')
