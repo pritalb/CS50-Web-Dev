@@ -89,7 +89,7 @@ def follow_user(request, user_id):
     current_user.following.add(user_to_follow)
     current_user.save()
 
-    return response({'message': 'user followed successfully.'})
+    return Response({'message': 'user followed successfully.'})
 
 @api_view(['PUT'])
 @login_required
@@ -100,7 +100,7 @@ def unfollow_user(request, user_id):
     current_user.following.remove(user_to_unfollow)
     current_user.save()
 
-    return response({'message': 'user unfollowed successfully.'})
+    return Response({'message': 'user unfollowed successfully.'})
 
 @api_view(['PUT'])
 @login_required

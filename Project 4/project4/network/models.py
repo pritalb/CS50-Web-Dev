@@ -4,7 +4,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    following = models.ForeignKey('self', on_delete=models.CASCADE, related_name='followers', null=True)
+    following = models.ManyToManyField('self', related_name='followers', blank=True, null=True)
 
 
 class Post(models.Model):
