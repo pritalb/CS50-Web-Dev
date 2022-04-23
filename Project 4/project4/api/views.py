@@ -38,8 +38,19 @@ def get_all_posts(request):
 
     return Response(posts_json)
 
+@api_view(['PUT'])
+@login_required
 def edit_post(request, post_id):
-    pass
+    post = Post.objects.get(pk=post_id)
+
+    if request.user != post.poster:
+        return Response({'detail': 'access denied.'})
+
+    data = request.data
+    post.content = data['content']
+    post.save()
+
+    return Response({'detail': 'post edited successfully.'})
 
 @api_view(['GET'])
 def get_user_profile(request, user_id):
