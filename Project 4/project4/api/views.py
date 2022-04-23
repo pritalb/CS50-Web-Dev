@@ -38,6 +38,25 @@ def get_all_posts(request):
 
     return Response(posts_json)
 
+@api_view(['GET'])
+@login_required
+def get_following_posts(request):
+    user = request.user
+    following = user.following
+    following_posts = {}
+    
+    for profile in following.all():
+        for post in profile.posts.all():
+            following_posts[post.pk] = {
+                'content' : post.content,
+                'likes' : post.likes,
+                'post_user' : str(post.poster),
+                'date_published' : post.date_published,
+            }
+
+    return Response(following_posts)
+
+
 @api_view(['PUT'])
 @login_required
 def edit_post(request, post_id):
