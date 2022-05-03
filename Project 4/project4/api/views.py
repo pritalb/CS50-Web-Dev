@@ -5,6 +5,8 @@ from urllib import response
 from django.shortcuts import render
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage
+from django.urls import reverse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -24,11 +26,30 @@ def create_new_post(request):
     return Response({'message': 'post created successfully.'})
 
 @api_view(['GET'])
-def get_all_posts(request):
+def get_all_posts(request, page):
     posts = Post.objects.all()
     posts_json = {}
+    page_size = 3
+    p = Paginator(posts, page_size)
 
-    for post in posts:
+    try:
+        page_obj = p.page(page)
+    except EmptyPage:
+        page_obj = p.page(1)
+
+    has_next = page_obj.has_next()
+    has_previous = page_obj.has_previous()
+    next_page = ''
+    previous_page = ''
+
+    if has_next:
+        next_page = request.build_absolute_uri(reverse('get_all_posts', kwargs={'page': page_obj.next_page_number()}))
+
+    if has_previous:
+        previous_page = request.build_absolute_uri(reverse('get_all_posts', kwargs={'page': page_obj.previous_page_number()}))
+  
+
+    for post in page_obj:
         posts_json[post.pk] = {
             'content' : post.content,
             'likes' : post.likes,
@@ -36,25 +57,67 @@ def get_all_posts(request):
             'date_published' : post.date_published,
         }
 
-    return Response(posts_json)
+    return Response({
+        'current_page': page_obj.number,
+        'has_next': has_next,
+        'next_page': next_page,
+        'has_previous': has_previous,
+        'previous_page': previous_page,
+        'number_of_pages': p.num_pages,
+        'posts': posts_json,  
+    })
 
 @api_view(['GET'])
 @login_required
-def get_following_posts(request):
+def get_following_posts(request, page):
     user = request.user
-    following = user.following
+    following = user.following.all()
     following_posts = {}
-    
-    for profile in following.all():
+
+    posts = []
+
+    for profile in following:
         for post in profile.posts.all():
-            following_posts[post.pk] = {
+            posts.append( (post.pk, {
                 'content' : post.content,
                 'likes' : post.likes,
                 'post_user' : str(post.poster),
                 'date_published' : post.date_published,
-            }
+            }) )
 
-    return Response(following_posts)
+    print(posts)
+
+    page_size = 3
+    p = Paginator(posts, page_size)
+
+    try:
+        page_obj = p.page(page)
+    except EmptyPage:
+        page_obj = p.page(1)
+
+    has_next = page_obj.has_next()
+    has_previous = page_obj.has_previous()
+    next_page = ''
+    previous_page = ''
+
+    if has_next:
+        next_page = request.build_absolute_uri(reverse('get_all_posts', kwargs={'page': page_obj.next_page_number()}))
+
+    if has_previous:
+        previous_page = request.build_absolute_uri(reverse('get_all_posts', kwargs={'page': page_obj.previous_page_number()}))
+
+    for post in page_obj:
+        following_posts[post[0]] = post[1]
+
+    return Response({
+    'current_page': page_obj.number,
+    'has_next': has_next,
+    'next_page': next_page,
+    'has_previous': has_previous,
+    'previous_page': previous_page,
+    'number_of_pages': p.num_pages,
+    'posts': following_posts,  
+})
 
 
 @api_view(['PUT'])
@@ -72,7 +135,7 @@ def edit_post(request, post_id):
     return Response({'detail': 'post edited successfully.'})
 
 @api_view(['GET'])
-def get_user_profile(request, user_id):
+def get_user_profile(request, user_id, page):
     queried_user = User.objects.get(pk=user_id)
     follow_allowed = (request.user != queried_user) and (request.user.is_authenticated)
     user_posts_json = {}
@@ -90,9 +153,28 @@ def get_user_profile(request, user_id):
     try:
         user_posts = queried_user.posts.all()
     except:
-        pass
+        user_posts = []
+
+    page_size = 3
+    p = Paginator(user_posts, page_size)
     
-    for post in user_posts:
+    try:
+        page_obj = p.page(page)
+    except EmptyPage:
+        page_obj = p.page(1)
+
+    has_next = page_obj.has_next()
+    has_previous = page_obj.has_previous()
+    next_page = ''
+    previous_page = ''
+
+    if has_next:
+        next_page = request.build_absolute_uri(reverse('get_all_posts', kwargs={'page': page_obj.next_page_number()}))
+
+    if has_previous:
+        previous_page = request.build_absolute_uri(reverse('get_all_posts', kwargs={'page': page_obj.previous_page_number()}))
+
+    for post in page_obj:
         user_posts_json[post.pk] = {
             'content' : post.content,
             'likes' : post.likes,
@@ -102,7 +184,15 @@ def get_user_profile(request, user_id):
 
     return Response({
         'name' : str(queried_user),
-        'posts' : user_posts_json,
+        'posts' : {
+            'current_page': page_obj.number,
+            'has_next': has_next,
+            'next_page': next_page,
+            'has_previous': has_previous,
+            'previous_page': previous_page,
+            'number_of_pages': p.num_pages,
+            'queried_posts': user_posts_json,  
+        },
         'can_follow' : follow_allowed,
         'total_followers' : len(followers),
         'total_following' : len(following),
