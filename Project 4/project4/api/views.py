@@ -2,24 +2,30 @@ from ast import And
 from operator import truediv
 from turtle import pos
 from urllib import response
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import  csrf_exempt
 from django.core.paginator import Paginator, EmptyPage
 from django.urls import reverse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from network.models import Post, User
-
+from  .utils import  emptyString
 # Create your views here.
 
 @api_view(['POST',])
 @login_required
 def create_new_post(request):
     data = request.data
-
     post_content = data['content']
+    
+    if (emptyString(post_content)):
+        return Response({
+            'message' : 'Error! Submitted empty post',
+        })
+
     post = Post.objects.create(content=post_content, poster=request.user)
     post.save()
     
@@ -54,7 +60,7 @@ def get_all_posts(request, page):
             'content' : post.content,
             'likes' : post.likes,
             'post_user' : str(post.poster),
-            'date_published' : post.date_published,
+            'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
         }
 
     return Response({
