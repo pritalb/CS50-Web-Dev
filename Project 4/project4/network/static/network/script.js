@@ -74,18 +74,24 @@ const AllPosts = ({reRenderPosts}) => {
                     Object.keys(posts).map((post) => (
                         <Post post={posts[post]} />
                     ))
+
+                    
+                }
+
+                {
+                    (postsObject.has_previous) && <button onClick={() => {
+                        getPaginatedPosts(postsObject.previous_page)
+                    }}> Previous </button>
+                }
+
+                {
+                    (postsObject.has_next) && <button onClick={() => {
+                        getPaginatedPosts(postsObject.next_page)
+                    }}> Next </button> 
                 }
             </div>
     )
 }
-
-// if (postsObject.has_previous) {
-//     <button onClick={getPaginatedPosts(postsObject.previous_page)}> Previous </button>
-// }
-
-// if (postsObject.has_next) {
-//     <button onClick={getPaginatedPosts(postsObject.next_page)}> Next </button>
-// }
 
 const PostForm = ({setRerenderPosts}) => {
     const [postContent, setPostContent] = React.useState('')
