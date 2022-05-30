@@ -1,12 +1,8 @@
 // API Endpoints / URLs
 const Root_URL = 'http://127.0.0.1:8000/'
 const allPostsURL = Root_URL + 'api/posts/all/page=1/'
-// const newPostURL = Root_URL + 'api/posts/new/'
-const newPostURL = 'http://127.0.0.1:8000/api/posts/new/'
-// console.log(newPostURL)
-
-const csrftoken = getCookie('csrftoken');
-console.log(`csrf token: ${csrftoken}`)
+const newPostURL = Root_URL + 'api/posts/new/'
+const userStatusURL = Root_URL + 'api/user/status/'
 
 // Helper functions
 
@@ -25,6 +21,7 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+const csrftoken = getCookie('csrftoken');
 
 // Helper Functions end
 
@@ -38,6 +35,41 @@ const Post = ({post}) => {
         </div>
     )
 }
+
+const PostForm = ({setRerenderPosts}) => {
+    const [postContent, setPostContent] = React.useState('')
+
+    const changePostValue = (event) => {
+        setPostContent(event.target.value)
+    }
+
+    const submitPost = async () => {
+        console.log('trying to submit a post.')
+        console.log(`content: ${postContent}`)
+
+        const response = await fetch(newPostURL, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'content': postContent,
+            })
+        })
+
+        setRerenderPosts('new post created.')
+    }
+
+    return (
+        <div className='post-create-input'>
+            <input type='text' id='post-content-field' value={postContent} onChange={changePostValue}></input>
+            <button id='post-submit-button' onClick={submitPost}>Post</button>
+        </div>
+    )
+}
+
 
 const AllPosts = ({reRenderPosts}) => {
     const [postsObject, setPostsObject] = React.useState({})
@@ -57,15 +89,6 @@ const AllPosts = ({reRenderPosts}) => {
 
     React.useEffect(() => {
         getPaginatedPosts(allPostsURL)
-        // console.log(posts)
-
-        // const response = await fetch(url)
-        // const data = await response.json()
-
-        // const postsArray = Object.values(data.posts)
-
-        // setPostsObject(data)
-        // setPosts(postsArray.reverse())
         }, [reRenderPosts])
    
     return (
@@ -93,49 +116,25 @@ const AllPosts = ({reRenderPosts}) => {
     )
 }
 
-const PostForm = ({setRerenderPosts}) => {
-    const [postContent, setPostContent] = React.useState('')
-
-    const changePostValue = (event) => {
-        // console.log('value of content field changed')
-        setPostContent(event.target.value)
-    }
-
-    const submitPost = async () => {
-        console.log('trying to submit a post.')
-        console.log(`content: ${postContent}`)
-
-        const response = await fetch(newPostURL, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            // credentials: 'same-origin',
-            body: JSON.stringify({
-                'content': postContent,
-            })
-        })
-
-        setRerenderPosts('new post created.')
-    }
-
-    return (
-        <div className='post-create-input'>
-            <input type='text' id='post-content-field' value={postContent} onChange={changePostValue}></input>
-            {/* <input type="hidden" name="csrfmiddlewaretoken" value={csrftoken}></input> */}
-            <button id='post-submit-button' onClick={submitPost}>Post</button>
-        </div>
-    )
-}
 
 const App = () => {
     const [reRenderPosts, setRerenderPosts] = React.useState('')
+    const [userStatus, setUserStatus] = React.useState({})
+
+    React.useEffect(async () => {
+        const response = await fetch(userStatusURL)
+        const data = await response.json()
+
+        // console.log(data)
+        setUserStatus(data)
+    }, [])
 
     return (
         <div id='main-page'>
-            <PostForm  setRerenderPosts={setRerenderPosts} />
+            {
+                userStatus.authenticated && <PostForm  setRerenderPosts={setRerenderPosts} />
+            }
+
             <AllPosts reRenderPosts={reRenderPosts} />
         </div>
     )

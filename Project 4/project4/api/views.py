@@ -205,6 +205,14 @@ def get_user_profile(request, user_id, page):
     })
 
 
+@api_view(['GET'])
+def get_user_status(request):
+    user = request.user
+
+    return Response({
+        'user' : str(user),
+        'authenticated' : user.is_authenticated,
+    })
 
 @api_view(['PUT'])
 @login_required
