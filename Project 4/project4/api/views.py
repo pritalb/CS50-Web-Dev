@@ -271,3 +271,13 @@ def post_likedby(request, post_id):
         'user' : str(user),
         'is_post_liked_by_user' : user in post.likers.all(),
     })
+
+@api_view(['GET'])
+def is_post_owner(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    user = request.user
+
+    return Response({
+        'user' : str(user),
+        'is_post_owner' : user == post.poster,
+    })

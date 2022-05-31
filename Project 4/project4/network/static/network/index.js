@@ -25,20 +25,74 @@ const csrftoken = getCookie('csrftoken');
 
 // Helper Functions end
 
+const EditField = ({setCanEdit, setRerenderPosts, postID}) => {
+    const editPostURL = Root_URL + `api/posts/${postID}/edit/`
+
+    const [newPostContent, setNewPostContent] = React.useState('')
+
+    const changePostValue = (event) => {
+        setNewPostContent(event.target.value)
+    }
+
+    const submitPost = async () => {
+        console.log('trying to submit a post.')
+        console.log(`content: ${newPostContent}`)
+
+        const response = await fetch(editPostURL, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                'content': newPostContent,
+            })
+        })
+        const data = await response.json()
+        console.log(data)
+
+        setCanEdit(false)
+        setRerenderPosts('A post has been edited.')
+    }
+
+    const cancelEdit = () => {
+        setCanEdit(false)
+    }
+
+    return (
+        <div className='post-create-input'>
+            <input type='text' id='post-content-field' value={newPostContent} onChange={changePostValue}></input>
+
+            <div id='edit-field-btns'>
+                <button id='post-edit-confirm-button' onClick={submitPost}> Confirm Changes </button>
+                <button id='post-edit-cancel-button' onClick={cancelEdit}> Cancel </button>
+            </div>
+        </div>
+    )
+}
+
 const Post = ({post, setRerenderPosts, userStatus}) => {
     const likeURL = Root_URL + `api/posts/${post.id}/like/`
     const unlikeURL = Root_URL + `api/posts/${post.id}/unlike/`
     const isPostLikedURL = Root_URL + `api/posts/${post.id}/likedby/requestuser/`
+    const isPostOwnerURL = Root_URL + `api/posts/${post.id}/isowner/`
 
     const [isPostLiked, setIsPostLiked] = React.useState(false)
+    const [isPostOwner, setIsPostOwner] = React.useState(false)
+    const [canEdit, setCanEdit] = React.useState(false)
 
     React.useEffect(async () => {
-        const response = await fetch(isPostLikedURL)
-        const data = await response.json()
+        const isPostlikedResponse = await fetch(isPostLikedURL)
+        const isPostlikedData = await isPostlikedResponse.json()
 
-        setIsPostLiked(data.is_post_liked_by_user)
+        const isPostOwnerResponse = await fetch(isPostOwnerURL)
+        const isPostOwnerData = await isPostOwnerResponse.json()
+        
+        setIsPostLiked(isPostlikedData.is_post_liked_by_user)
+        setIsPostOwner(isPostOwnerData.is_post_owner)
         // console.log(data)
-    }, [])
+    }, [canEdit])
 
     const likePost = async () => {
         const response = await fetch(likeURL, {
@@ -67,13 +121,29 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
         setIsPostLiked(false)
     }
 
+    const toggleEdit = () => {
+        setCanEdit(true)
+    }
 
     return (
         <div className='post'>
             <div className='post_content'>
                 <div>{post.likes}</div>
                 <span>{post.post_user}</span>
-                <div>{post.content}</div>
+
+
+                <div>
+                    {
+
+                        canEdit ?
+                            <EditField setCanEdit={setCanEdit} postID={post.id} setRerenderPosts={setRerenderPosts}/>
+                        :
+                            <div>
+                                {post.content}
+                            </div>
+                    }
+                </div>
+
                 <span>{post.date_published}</span>
             </div>
 
@@ -86,6 +156,11 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
                                     <button onClick={unlikePost}> UnLike </button>
                                 :
                                     <button onClick={likePost}> Like </button>
+                            }
+
+                            {
+                                (isPostOwner && !canEdit ) &&
+                                    <button onClick={toggleEdit}> Edit </button>
                             }
                     </div>
             }
