@@ -35,7 +35,7 @@ def create_new_post(request):
 def get_all_posts(request, page):
     posts = Post.objects.all()
     posts_json = {}
-    page_size = 3
+    page_size = 10
     p = Paginator(posts, page_size)
 
     try:
@@ -94,7 +94,7 @@ def get_following_posts(request, page):
             }) )
 
 
-    page_size = 3
+    page_size = 10
     p = Paginator(posts, page_size)
 
     try:
@@ -162,7 +162,7 @@ def get_user_profile(request, user_id, page):
     except:
         user_posts = []
 
-    page_size = 3
+    page_size = 10
     p = Paginator(user_posts, page_size)
     
     try:
