@@ -90,9 +90,9 @@ def get_following_posts(request, page):
                 'likes' : post.likes,
                 'post_user' : str(post.poster),
                 'date_published' : post.date_published,
+                'id' : post.pk,
             }) )
 
-    print(posts)
 
     page_size = 3
     p = Paginator(posts, page_size)
@@ -187,6 +187,7 @@ def get_user_profile(request, user_id, page):
             'likes' : post.likes,
             'post_user' : str(post.poster),
             'date_published' : post.date_published,
+            'id' : post.pk,
         }
 
     return Response({
