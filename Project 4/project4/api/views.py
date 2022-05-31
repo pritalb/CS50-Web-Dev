@@ -61,6 +61,7 @@ def get_all_posts(request, page):
             'likes' : post.likes,
             'post_user' : str(post.poster),
             'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
+            'id' : post.pk,
         }
 
     return Response({
@@ -241,6 +242,7 @@ def unfollow_user(request, user_id):
 def like_post(request, post_id):
     post = Post.objects.get(pk=post_id)
     post.likes += 1
+    post.likers.add(request.user)
     post.save()
 
     return Response({'message': 'post liked successfully.'})
@@ -248,8 +250,23 @@ def like_post(request, post_id):
 @api_view(['PUT'])
 @login_required
 def unlike_post(request, post_id):
+    user = request.user
     post = Post.objects.get(pk=post_id)
-    post.likes -= 1
-    post.save()
+    likers = post.likers.all()
 
-    return Response({'message': 'post unliked successfully.'})
+    if user in likers:
+        post.likes -= 1
+        post.likers.remove(user)
+        post.save()
+        return Response({'message': 'post unliked successfully.'})
+    return Response({'message': 'can\'t unlike post not previously liked by user.'})
+
+@api_view(['GET'])
+def post_likedby(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    user = request.user
+
+    return Response({
+        'user' : str(user),
+        'is_post_liked_by_user' : user in post.likers.all(),
+    })

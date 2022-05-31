@@ -4,7 +4,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    following = models.ManyToManyField('self', related_name='followers', symmetrical=False, blank=True, null=True)
+    following = models.ManyToManyField('self', related_name='followers', symmetrical=False, blank=True)
 
 
 class Post(models.Model):
@@ -12,6 +12,7 @@ class Post(models.Model):
     likes = models.IntegerField(default=0)
     date_published = models.DateTimeField(auto_now_add=True)
     poster = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
+    likers = models.ManyToManyField('User', related_name='liked_posts', symmetrical=False, blank=True)
 
     class Meta:
         ordering = ['-date_published']

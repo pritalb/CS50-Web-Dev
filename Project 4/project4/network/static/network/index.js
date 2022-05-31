@@ -25,13 +25,70 @@ const csrftoken = getCookie('csrftoken');
 
 // Helper Functions end
 
-const Post = ({post}) => {
+const Post = ({post, setRerenderPosts, userStatus}) => {
+    const likeURL = Root_URL + `api/posts/${post.id}/like/`
+    const unlikeURL = Root_URL + `api/posts/${post.id}/unlike/`
+    const isPostLikedURL = Root_URL + `api/posts/${post.id}/likedby/requestuser/`
+
+    const [isPostLiked, setIsPostLiked] = React.useState(false)
+
+    React.useEffect(async () => {
+        const response = await fetch(isPostLikedURL)
+        const data = await response.json()
+
+        setIsPostLiked(data.is_post_liked_by_user)
+        // console.log(data)
+    }, [])
+
+    const likePost = async () => {
+        const response = await fetch(likeURL, {
+            method : 'PUT',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        const data = await response.json()
+
+        // console.log(data)
+        setRerenderPosts('A post has been liked')
+        setIsPostLiked(true)
+    }
+
+    const unlikePost = async () => {
+        const response = await fetch(unlikeURL, {
+            method : 'PUT',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        const data = await response.json()
+        // console.log(data)
+        setRerenderPosts('A post has been unliked')
+        setIsPostLiked(false)
+    }
+
+
     return (
         <div className='post'>
-            <h3>{post.likes}</h3>
-            <span>{post.post_user}</span>
-            <div>{post.content}</div>
-            <span>{post.date_published}</span>
+            <div className='post_content'>
+                <div>{post.likes}</div>
+                <span>{post.post_user}</span>
+                <div>{post.content}</div>
+                <span>{post.date_published}</span>
+            </div>
+
+            {
+                userStatus.authenticated &&
+                    <div className='post_buttons'>
+                        
+                            {
+                                isPostLiked ?
+                                    <button onClick={unlikePost}> UnLike </button>
+                                :
+                                    <button onClick={likePost}> Like </button>
+                            }
+                    </div>
+            }
         </div>
     )
 }
@@ -71,7 +128,7 @@ const PostForm = ({setRerenderPosts}) => {
 }
 
 
-const AllPosts = ({reRenderPosts}) => {
+const AllPosts = ({reRenderPosts, setRerenderPosts, userStatus}) => {
     const [postsObject, setPostsObject] = React.useState({})
     const [posts, setPosts] = React.useState({})
 
@@ -83,8 +140,7 @@ const AllPosts = ({reRenderPosts}) => {
 
         setPostsObject(data)
         setPosts(postsArray.reverse())
-
-        console.log(data)
+        // console.log(data)
     }
 
     React.useEffect(() => {
@@ -95,7 +151,7 @@ const AllPosts = ({reRenderPosts}) => {
             <div class='post_container'>
                 {
                     Object.keys(posts).map((post) => (
-                        <Post post={posts[post]} />
+                        <Post post={posts[post]} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
                     ))
 
                     
@@ -135,7 +191,7 @@ const App = () => {
                 userStatus.authenticated && <PostForm  setRerenderPosts={setRerenderPosts} />
             }
 
-            <AllPosts reRenderPosts={reRenderPosts} />
+            <AllPosts reRenderPosts={reRenderPosts} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
         </div>
     )
 }
