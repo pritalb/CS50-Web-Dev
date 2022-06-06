@@ -117,7 +117,7 @@ const UserPosts = ({user_id, reRenderPosts, setRerenderPosts, userStatus}) => {
 
     React.useEffect(() => {
         getPaginatedPosts(userPostsURL)
-    }, [])
+    }, [reRenderPosts])
    
     return (
             <div class='post_container'>

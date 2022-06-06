@@ -229,8 +229,6 @@ const AllPosts = ({reRenderPosts, setRerenderPosts, userStatus}) => {
                     Object.keys(posts).map((post) => (
                         <Post post={posts[post]} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
                     ))
-
-                    
                 }
 
                 {
