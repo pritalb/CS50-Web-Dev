@@ -1,6 +1,5 @@
 // API Endpoints / URLs
 const Root_URL = 'http://127.0.0.1:8000/'
-const followingPostsURL = Root_URL + 'api/posts/following/page=1/'
 const userStatusURL = Root_URL + 'api/user/status/'
 
 // Helper functions
@@ -93,34 +92,40 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
     )
 }
 
+const UserPosts = ({user_id, reRenderPosts, setRerenderPosts, userStatus}) => {
+    const userPostsURL = Root_URL + `api/users/${user_id}/page=1`
 
-const FollowingPosts = ({reRenderPosts, setRerenderPosts, userStatus}) => {
     const [postsObject, setPostsObject] = React.useState({})
-    const [posts, setPosts] = React.useState({})
+    const [posts, setPosts] = React.useState([])
 
     const getPaginatedPosts = async (url) => {
-        const response = await fetch(url)
-        const data = await response.json()
+        const response = await fetch(url).then((response) => response.json())
+        .then((data) => {
+            // console.log(data)
 
-        const postsArray = Object.values(data.posts)
+            const postsArray = Object.values(data.posts)
 
-        setPostsObject(data)
-        setPosts(postsArray.reverse())
+            setPostsObject(data)
+            setPosts(postsArray.reverse())
+    
+            setRerenderPosts('user posts fetched.')
+
+        })
+        // const data = await response.json()
         // console.log(data)
     }
 
     React.useEffect(() => {
-        getPaginatedPosts(followingPostsURL)
-        }, [reRenderPosts])
+        getPaginatedPosts(userPostsURL)
+    }, [])
    
     return (
             <div class='post_container'>
                 {
-                    Object.keys(posts).map((post) => (
-                        <Post post={posts[post]} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
+                    posts.map((post) => (
+                        <Post post={post} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
                     ))
 
-                    
                 }
 
                 {
@@ -136,10 +141,83 @@ const FollowingPosts = ({reRenderPosts, setRerenderPosts, userStatus}) => {
                 }
             </div>
     )
+
+    // return (
+    //     <div> posts </div>
+    // )
 }
 
+const Profile = ({user_id, reRenderPosts, setRerenderPosts, userStatus}) => {
+    const userProfileURL = Root_URL + `api/users/${user_id}/`
+    const userFollowURL = Root_URL + `api/users/${user_id}/follow/`
+    const userUnfollowURL = Root_URL + `api/users/${user_id}/unfollow/`
 
-const App = () => {
+    const [profileData, setProfileData] = React.useState({})
+    const [followed, setFollowed] = React.useState(false)
+
+    React.useEffect(async () => {
+        const response = await fetch(userProfileURL)
+        const data = await response.json()
+
+        console.log(data)
+        console.log(data.can_follow && data.followed)
+        setFollowed(data.followed)
+        await setProfileData(data)
+    }, [reRenderPosts])
+
+    const followUser = async () => {
+        // console.log('now following user.')
+        const response = await fetch(userFollowURL, {
+            'method' : 'PUT',
+            'headers' : {
+                'X-CSRFToken' : csrftoken,
+            }
+        })
+        const data = await response.json()
+        console.log(data)
+
+        setFollowed(true)
+        setRerenderPosts('User has been followed.')
+    }
+
+    const unfollowUser = async () => {
+        // console.log('now following user.')
+        const response = await fetch(userUnfollowURL, {
+            'method' : 'PUT',
+            'headers' : {
+                'X-CSRFToken' : csrftoken,
+            }
+        })
+        const data = await response.json()
+        console.log(data)
+    
+        setFollowed(false)
+        setRerenderPosts('User has been unfollowed.')
+    }
+
+    return (
+        <div id='user_profile'> 
+            <h3> {profileData.name} </h3>
+            <div> Following : {profileData.total_following} </div>
+            <div> Followers : {profileData.total_followers} </div>
+
+            <div>
+                {
+                    (profileData.can_follow && userStatus.authenticated ) && (followed
+                    ?
+                        <button onClick={unfollowUser}> Unfollow </button>
+                    :
+                        <button onClick={followUser}> Follow </button>
+                    )
+                }
+            </div>
+
+            <UserPosts user_id={user_id} reRenderPosts={reRenderPosts} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
+        </div>
+    )
+}
+
+const App = ({user_id}) => {
     const [reRenderPosts, setRerenderPosts] = React.useState('')
     const [userStatus, setUserStatus] = React.useState({})
 
@@ -152,10 +230,8 @@ const App = () => {
     }, [])
 
     return (
-        <div id='main-page'>
-            <FollowingPosts reRenderPosts={reRenderPosts} setRerenderPosts={setRerenderPosts} userStatus={userStatus} />
-        </div>
+        <Profile user_id={user_id} reRenderPosts={reRenderPosts} setRerenderPosts={setRerenderPosts} userStatus={userStatus}/>
     )
 }
 
-ReactDOM.render(<App />, document.getElementById('app'))
+ReactDOM.render(<App user_id={user_id} />, document.getElementById('app'))

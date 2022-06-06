@@ -77,6 +77,7 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
     const unlikeURL = Root_URL + `api/posts/${post.id}/unlike/`
     const isPostLikedURL = Root_URL + `api/posts/${post.id}/likedby/requestuser/`
     const isPostOwnerURL = Root_URL + `api/posts/${post.id}/isowner/`
+    const userProfileURL = Root_URL + `user/${post.user_id}/`
 
     const [isPostLiked, setIsPostLiked] = React.useState(false)
     const [isPostOwner, setIsPostOwner] = React.useState(false)
@@ -129,7 +130,7 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
         <div className='post'>
             <div className='post_content'>
                 <div>{post.likes}</div>
-                <span>{post.post_user}</span>
+                <span> <a href={userProfileURL}> {post.post_user} </a> </span>
 
 
                 <div>

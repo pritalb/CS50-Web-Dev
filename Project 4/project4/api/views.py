@@ -62,6 +62,7 @@ def get_all_posts(request, page):
             'post_user' : str(post.poster),
             'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
             'id' : post.pk,
+            'user_id' : post.poster.pk,
         }
 
     return Response({
@@ -89,8 +90,9 @@ def get_following_posts(request, page):
                 'content' : post.content,
                 'likes' : post.likes,
                 'post_user' : str(post.poster),
-                'date_published' : post.date_published,
+                'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
                 'id' : post.pk,
+                'user_id' : post.poster.pk,
             }) )
 
 
@@ -142,10 +144,11 @@ def edit_post(request, post_id):
     return Response({'detail': 'post edited successfully.'})
 
 @api_view(['GET'])
-def get_user_profile(request, user_id, page):
+def get_user_profile(request, user_id):
     queried_user = User.objects.get(pk=user_id)
     follow_allowed = (request.user != queried_user) and (request.user.is_authenticated)
     user_posts_json = {}
+    user_followed = queried_user in request.user.following.all()
 
     try:
         following = queried_user.following.all()
@@ -156,6 +159,19 @@ def get_user_profile(request, user_id, page):
         followers = queried_user.followers.all()
     except:
         followers = {}
+
+    return Response({
+        'name' : str(queried_user),
+        'can_follow' : follow_allowed,
+        'followed' : user_followed,
+        'total_followers' : len(followers),
+        'total_following' : len(following),
+    })
+
+@api_view(['GET'])
+def get_user_profile_posts(request, user_id, page):
+    queried_user = User.objects.get(pk=user_id)
+    user_posts_json = {}
 
     try:
         user_posts = queried_user.posts.all()
@@ -186,24 +202,19 @@ def get_user_profile(request, user_id, page):
             'content' : post.content,
             'likes' : post.likes,
             'post_user' : str(post.poster),
-            'date_published' : post.date_published,
+            'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
             'id' : post.pk,
+            'user_id' : post.poster.pk,
         }
 
     return Response({
-        'name' : str(queried_user),
-        'posts' : {
             'current_page': page_obj.number,
             'has_next': has_next,
             'next_page': next_page,
             'has_previous': has_previous,
             'previous_page': previous_page,
             'number_of_pages': p.num_pages,
-            'queried_posts': user_posts_json,  
-        },
-        'can_follow' : follow_allowed,
-        'total_followers' : len(followers),
-        'total_following' : len(following),
+            'posts': user_posts_json,  
     })
 
 

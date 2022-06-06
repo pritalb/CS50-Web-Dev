@@ -13,6 +13,10 @@ def index(request):
 def following_posts(request):
     return render(request, 'network/following.html')
 
+def user_profile(request, user_id):
+    return render(request, 'network/profile.html', {
+        'user_id' : user_id,
+    })
 
 def login_view(request):
     if request.method == "POST":
