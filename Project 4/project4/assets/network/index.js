@@ -28,7 +28,9 @@ const csrftoken = getCookie('csrftoken');
 const HeartIconLiked = () => {
     return (
         <div className='heart'>
-            <img width="256" alt="A perfect SVG heart" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/A_perfect_SVG_heart.svg/256px-A_perfect_SVG_heart.svg.png" />
+            <a title="pd4u, CC0, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:A_perfect_SVG_heart.svg">
+                <img width="256" alt="A perfect SVG heart" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/A_perfect_SVG_heart.svg/256px-A_perfect_SVG_heart.svg.png" />
+            </a>
         </div>
     )
 }
@@ -36,7 +38,9 @@ const HeartIconLiked = () => {
 const HeartIconUnliked = () => {
     return (
         <div className='heart'>
-            <img width="512" alt="Ei-heart" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Ei-heart.svg/512px-Ei-heart.svg.png" />
+            <a title="Alexander Madyankin, Roman Shamin, MIT &lt;http://opensource.org/licenses/mit-license.php&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Ei-heart.svg">
+                <img width="512" alt="Ei-heart" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Ei-heart.svg/512px-Ei-heart.svg.png" />
+            </a>
         </div>
     )
 }
@@ -74,12 +78,12 @@ const EditField = ({setCanEdit, setRerenderPosts, postID}) => {
     }
 
     return (
-        <div className='post_edit_form'>
-            <input type='text' className='post_form_field' value={newPostContent} onChange={changePostValue}></input>
+        <div className='post-create-input'>
+            <input type='text' id='post-content-field' value={newPostContent} onChange={changePostValue}></input>
 
-            <div className='post_form_buttons'>
-                <button className='btn' onClick={submitPost}> Confirm Changes </button>
-                <button className='btn' onClick={cancelEdit}> Cancel </button>
+            <div id='edit-field-btns'>
+                <button onClick={submitPost}> Confirm Changes </button>
+                <button onClick={cancelEdit}> Cancel </button>
             </div>
         </div>
     )
@@ -135,24 +139,22 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
 
     return (
         <div className='post'>
-            <div className='post_label'>
+            <div className='post_content'>
                 <div className='post_username'> <a href={userProfileURL}> {post.post_user} </a> </div>
                 <div className='post_pubdate'>{post.date_published}</div>
-            </div>
 
-            <div className='post_body'>
-                {
-                    
-                    canEdit ?
-                        <EditField setCanEdit={setCanEdit} postID={post.id} setRerenderPosts={setRerenderPosts}/>
-                    :
-                        <div className='post_content'>
-                            {post.content}
-                        </div>
-                }
-            </div>
+                <div>
+                    {
 
-            <div className='post_footer'>
+                        canEdit ?
+                            <EditField setCanEdit={setCanEdit} postID={post.id} setRerenderPosts={setRerenderPosts}/>
+                        :
+                            <div>
+                                {post.content}
+                            </div>
+                    }
+                </div>
+
                 <div className='post_likes'>
                     {
                         isPostLiked
@@ -167,24 +169,25 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
                     </div>
                 </div>
 
-                {
-                    userStatus.authenticated &&
-                        <div className='post_buttons'>
-                            
-                                {
-                                    isPostLiked ?
-                                    <button className='btn' onClick={unlikePost}> UnLike </button>
-                                    :
-                                    <button className='btn' onClick={likePost}> Like </button>
-                                }
-
-                                {
-                                    (isPostOwner && !canEdit ) &&
-                                    <button className='btn' onClick={toggleEdit}> Edit </button>
-                                }
-                        </div>
-                }
             </div>
+
+            {
+                userStatus.authenticated &&
+                    <div className='post_buttons'>
+                        
+                            {
+                                isPostLiked ?
+                                    <button onClick={unlikePost}> UnLike </button>
+                                :
+                                    <button onClick={likePost}> Like </button>
+                            }
+
+                            {
+                                (isPostOwner && !canEdit ) &&
+                                    <button onClick={toggleEdit}> Edit </button>
+                            }
+                    </div>
+            }
         </div>
     )
 }
@@ -216,12 +219,9 @@ const PostForm = ({setRerenderPosts}) => {
     }
 
     return (
-        <div className='post_form'>
-            <input type='text' className='post_form_field' value={postContent} onChange={changePostValue} maxLength='254'></input>
-
-            <div className='post_form_buttons'>
-                <button className='btn' onClick={submitPost}>Post</button>
-            </div>
+        <div className='post-create-input'>
+            <input type='text' id='post-content-field' value={postContent} onChange={changePostValue}></input>
+            <button id='post-submit-button' onClick={submitPost}>Post</button>
         </div>
     )
 }
@@ -254,13 +254,13 @@ const AllPosts = ({reRenderPosts, setRerenderPosts, userStatus}) => {
                 }
 
                 {
-                    (postsObject.has_previous) && <button className='btn' onClick={() => {
+                    (postsObject.has_previous) && <button onClick={() => {
                         getPaginatedPosts(postsObject.previous_page)
                     }}> Previous </button>
                 }
 
                 {
-                    (postsObject.has_next) && <button className='btn' onClick={() => {
+                    (postsObject.has_next) && <button onClick={() => {
                         getPaginatedPosts(postsObject.next_page)
                     }}> Next </button> 
                 }
@@ -280,7 +280,7 @@ const App = () => {
     }, [])
 
     return (
-        <div id='main_page'>
+        <div id='main-page'>
             {
                 userStatus.authenticated && <PostForm  setRerenderPosts={setRerenderPosts} />
             }

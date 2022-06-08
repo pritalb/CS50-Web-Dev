@@ -59,7 +59,7 @@ def get_all_posts(request, page):
         posts_json[post.pk] = {
             'content' : post.content,
             'likes' : post.likes,
-            'post_user' : str(post.poster),
+            'post_user' : str(post.poster).capitalize(),
             'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
             'id' : post.pk,
             'user_id' : post.poster.pk,
@@ -89,7 +89,7 @@ def get_following_posts(request, page):
             posts.append( (post.pk, {
                 'content' : post.content,
                 'likes' : post.likes,
-                'post_user' : str(post.poster),
+                'post_user' : str(post.poster).capitalize(),
                 'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
                 'id' : post.pk,
                 'user_id' : post.poster.pk,
@@ -161,7 +161,7 @@ def get_user_profile(request, user_id):
         followers = {}
 
     return Response({
-        'name' : str(queried_user),
+        'name' : str(queried_user).capitalize(),
         'can_follow' : follow_allowed,
         'followed' : user_followed,
         'total_followers' : len(followers),
@@ -201,7 +201,7 @@ def get_user_profile_posts(request, user_id, page):
         user_posts_json[post.pk] = {
             'content' : post.content,
             'likes' : post.likes,
-            'post_user' : str(post.poster),
+            'post_user' : str(post.poster).capitalize(),
             'date_published' : post.date_published.strftime("%a, %b %d, %Y, %I:%M:%S %p"),
             'id' : post.pk,
             'user_id' : post.poster.pk,
