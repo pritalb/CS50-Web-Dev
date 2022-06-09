@@ -24,6 +24,22 @@ const csrftoken = getCookie('csrftoken');
 
 // Helper Functions end
 
+const HeartIconLiked = () => {
+    return (
+        <div className='heart'>
+            <img width="256" alt="A perfect SVG heart" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/A_perfect_SVG_heart.svg/256px-A_perfect_SVG_heart.svg.png" />
+        </div>
+    )
+}
+
+const HeartIconUnliked = () => {
+    return (
+        <div className='heart'>
+            <img width="512" alt="Ei-heart" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Ei-heart.svg/512px-Ei-heart.svg.png" />
+        </div>
+    )
+}
+
 const Post = ({post, setRerenderPosts, userStatus}) => {
     const likeURL = Root_URL + `api/posts/${post.id}/like/`
     const unlikeURL = Root_URL + `api/posts/${post.id}/unlike/`
@@ -63,25 +79,45 @@ const Post = ({post, setRerenderPosts, userStatus}) => {
 
     return (
         <div className='post'>
-            <div className='post_content'>
-                <div>{post.likes}</div>
-                <span> <a href={userProfileURL}> {post.post_user} </a> </span>
-                <div>{post.content}</div>
-                <span>{post.date_published}</span>
+            <div className='post_label'>
+                <div className='post_username'> <a href={userProfileURL}> {post.post_user} </a> </div>
+                <div className='post_pubdate'>{post.date_published}</div>
             </div>
 
-            {
-                userStatus.authenticated &&
-                    <div className='post_buttons'>
-                        
-                            {
-                                isPostLiked ?
-                                    <button onClick={unlikePost}> UnLike </button>
-                                :
-                                    <button onClick={likePost}> Like </button>
-                            }
+            <div className='post_body'>
+                <div className='post_content'>
+                    {post.content}
+                </div>
+            </div>
+
+            <div className='post_footer'>
+                <div className='post_likes'>
+                    {
+                        isPostLiked
+                        ?
+                            <HeartIconLiked />
+                        :
+                            <HeartIconUnliked />
+                    }
+
+                    <div className='post_likes_count'>
+                        {post.likes}
                     </div>
-            }
+                </div>
+
+                {
+                    userStatus.authenticated &&
+                        <div className='post_buttons'>
+                            
+                                {
+                                    isPostLiked ?
+                                    <button className='btn' onClick={unlikePost}> UnLike </button>
+                                    :
+                                    <button className='btn' onClick={likePost}> Like </button>
+                                }
+                        </div>
+                }
+            </div>
         </div>
     )
 }
@@ -116,13 +152,13 @@ const FollowingPosts = ({reRenderPosts, setRerenderPosts, userStatus}) => {
                 }
 
                 {
-                    (postsObject.has_previous) && <button onClick={() => {
+                    (postsObject.has_previous) && <button className='btn' onClick={() => {
                         getPaginatedPosts(postsObject.previous_page)
                     }}> Previous </button>
                 }
 
                 {
-                    (postsObject.has_next) && <button onClick={() => {
+                    (postsObject.has_next) && <button className='btn' onClick={() => {
                         getPaginatedPosts(postsObject.next_page)
                     }}> Next </button> 
                 }

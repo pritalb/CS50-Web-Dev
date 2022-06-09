@@ -10,11 +10,34 @@ body {
     padding: 1rem;
 }
 
-#main_page {
+#main_page, #user_profile {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2rem;
+}
+
+#user_profile_info {
+    display: flex;
+    flex-direction: column;
+    width: 40rem;
+}
+
+#user_profile_name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#user_profile_name > h3 {
+    font-size: 2rem;
+    color: #007bff;
+}
+
+#user_profile_following {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
 img {
@@ -111,7 +134,7 @@ img {
     padding-left: 1rem;
 }
 
-.post_form_buttons {
+.post_form_buttons, .profile_btns {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
